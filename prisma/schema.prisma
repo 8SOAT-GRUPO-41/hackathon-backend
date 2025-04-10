@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String         @map("password")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  videos        Video[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Video {
+  id             String          @id @default(uuid())
+  user           User            @relation(fields: [userId], references: [id])
+  userId         String          @map("user_id")
+  originalKey    String          @map("original_key")
+  resultKey      String?         @map("result_key")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  processingJobs ProcessingJob[]
+
+  @@index([userId])
+  @@map("videos")
+}
+
+model ProcessingJob {
+  id            String             @id @default(uuid())
+  video         Video              @relation(fields: [videoId], references: [id])
+  videoId       String             @map("video_id")
+  requestedAt   DateTime           @default(now()) @map("requested_at")
+  startedAt     DateTime?          @map("started_at")
+  finishedAt    DateTime?          @map("finished_at")
+  errorMessage  String?            @map("error_message")
+  statusHistory JobStatusHistory[]
+  Notification  Notification[]
+
+  @@index([videoId])
+  @@map("processing_jobs")
+}
+
+model JobStatusHistory {
+  id        Int           @id @default(autoincrement())
+  job       ProcessingJob @relation(fields: [jobId], references: [id])
+  jobId     String        @map("job_id")
+  status    JobStatus
+  changedAt DateTime      @default(now()) @map("changed_at")
+
+  @@index([jobId])
+  @@map("job_status_history")
+}
+
+model Notification {
+  id      String         @id @default(uuid())
+  user    User           @relation(fields: [userId], references: [id])
+  userId  String         @map("user_id")
+  job     ProcessingJob? @relation(fields: [jobId], references: [id])
+  jobId   String?        @map("job_id")
+  channel Channel
+  sentAt  DateTime       @default(now()) @map("sent_at")
+  payload Json
+
+  @@index([userId])
+  @@index([jobId])
+  @@map("notifications")
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  FAILED
+  COMPLETED
+}
+
+enum Channel {
+  EMAIL
+  SMS
+  WEBHOOK
+}
