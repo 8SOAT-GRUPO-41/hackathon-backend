@@ -1,37 +1,50 @@
-import fastify, { type FastifyInstance } from 'fastify'
-import fastifySwagger from '@fastify/swagger'
-import fastifySwaggerUI from '@fastify/swagger-ui'
-import swaggerConfig from '@/infrastructure/swagger/swagger-config'
-import { authRoutes, userRoutes } from '@/infrastructure/http/routes'
-import type { HttpServer } from '@/infrastructure/http/interfaces'
-import { adaptFastifyRoute } from './adapter'
+import fastify, { type FastifyInstance } from "fastify";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUI from "@fastify/swagger-ui";
+import swaggerConfig from "@/infrastructure/swagger/swagger-config";
+import { authRoutes, userRoutes } from "@/infrastructure/http/routes";
+import type { HttpServer } from "@/infrastructure/http/interfaces";
+import { adaptFastifyRoute } from "./adapter";
+import { adaptFastifyMiddleware } from "./middleware-adapter";
+import { makeAuthMiddleware } from "@/infrastructure/factories/auth-factories";
 
 export class FastifyHttpServer implements HttpServer {
-  private server: FastifyInstance
+  private server: FastifyInstance;
 
   constructor() {
     this.server = fastify({
       logger:
-        process.env.NODE_ENV === 'development'
+        process.env.NODE_ENV === "development"
           ? {
               transport: {
-                target: 'pino-pretty',
+                target: "pino-pretty",
               },
-              level: 'debug',
+              level: "debug",
             }
           : true,
-    })
+    });
   }
 
   private async buildRoutes(): Promise<void> {
-    const routes = [...userRoutes, ...authRoutes]
-    const apiPrefix = '/api/v1'
+    const routes = [...userRoutes, ...authRoutes];
+    const apiPrefix = "/api/v1";
+
+    // Middleware de autenticação para rotas protegidas
+    const authMiddleware = adaptFastifyMiddleware(makeAuthMiddleware());
+
     for (const route of routes) {
+      const routeOptions: any = { schema: route.schema };
+
+      // Se a rota for protegida, adiciona o middleware de autenticação
+      if (route.protected) {
+        routeOptions.preHandler = authMiddleware;
+      }
+
       this.server[route.method](
         `${apiPrefix}${route.url}`,
-        { schema: route.schema },
+        routeOptions,
         adaptFastifyRoute(route.handler())
-      )
+      );
     }
   }
 
@@ -41,14 +54,14 @@ export class FastifyHttpServer implements HttpServer {
         openapi: swaggerConfig,
       })
       .register(fastifySwaggerUI, {
-        routePrefix: '/docs',
-      })
+        routePrefix: "/docs",
+      });
   }
 
   async listen(port: number): Promise<void> {
-    await this.buildDocs()
-    await this.buildRoutes()
-    await this.server.ready()
-    this.server.listen({ port, host: '0.0.0.0' })
+    await this.buildDocs();
+    await this.buildRoutes();
+    await this.server.ready();
+    this.server.listen({ port, host: "0.0.0.0" });
   }
 }
