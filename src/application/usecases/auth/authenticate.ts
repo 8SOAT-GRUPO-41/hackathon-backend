@@ -9,6 +9,7 @@ type AuthenticateInput = {
 
 type AuthenticateOutput = {
   token: string;
+  refreshToken: string;
   userId: string;
 };
 
@@ -31,16 +32,20 @@ export class Authenticate {
       throw new InvalidPasswordError("Senha inválida");
     }
 
-    const token = this.tokenService.generateToken(
-      {
-        userId: user.id,
-        email: user.email.value,
-      },
-      "1d"
+    const tokenPayload = {
+      userId: user.id,
+      email: user.email.value,
+    };
+
+    const token = this.tokenService.generateToken(tokenPayload, "15m");
+    const refreshToken = this.tokenService.generateRefreshToken(
+      tokenPayload,
+      "7d"
     );
 
     return {
       token,
+      refreshToken,
       userId: user.id,
     };
   }
