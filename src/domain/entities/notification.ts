@@ -1,18 +1,29 @@
 import { Entity } from '@/domain/common/entity';
 import { Channel } from '@/domain/enums/channel';
+import { JobStatus } from '../enums/job-status';
+
+export type NotificationPayload = {
+  status: JobStatus;
+  videoId: string;
+  videoName: string;
+  notificationChannel: Channel;
+  email?: string;
+  failureReason?: string;
+};
 
 export class Notification extends Entity<string> {
   private _userId: string;
   private _jobId?: string;
   private _channel: Channel;
   private _sentAt: Date;
-  private _payload: any; // Replace `any` with a more specific type if available
+  private _payload: NotificationPayload;
+  private _userEmail?: string;
 
   constructor(
     id: string,
     userId: string,
     channel: Channel,
-    payload: any,
+    payload: NotificationPayload,
     sentAt: Date = new Date(),
     jobId?: string,
   ) {
@@ -22,6 +33,22 @@ export class Notification extends Entity<string> {
     this._payload = payload;
     this._sentAt = sentAt;
     this._jobId = jobId;
+  }
+
+  static create(params: {
+    userId: string;
+    channel: Channel;
+    payload: NotificationPayload;
+    jobId?: string;
+  }): Notification {
+    return new Notification(
+      crypto.randomUUID(),
+      params.userId,
+      params.channel,
+      params.payload,
+      new Date(),
+      params.jobId,
+    );
   }
 
   static restore(params: {
@@ -60,5 +87,14 @@ export class Notification extends Entity<string> {
 
   get payload(): any {
     return this._payload;
+  }
+
+  get userEmail(): string | undefined {
+    return this._userEmail;
+  }
+
+  set userEmail(email: string | undefined) {
+    this._userEmail = email;
+    this._payload.email = email;
   }
 }

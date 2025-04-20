@@ -1,10 +1,5 @@
-import { JobStatus } from '@/domain/enums/job-status';
+import { Notification } from '@/domain/entities/notification';
 
 export interface IQueueService {
-  sendMessage(
-    videoId: string,
-    videoName: string,
-    status: JobStatus,
-    failureReason?: string,
-  ): Promise<void>;
+  sendNotification(notification: Notification): Promise<void>;
 }
