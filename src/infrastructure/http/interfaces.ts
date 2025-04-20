@@ -1,4 +1,4 @@
-import type { Controller } from "../controllers/interfaces";
+import type { Controller } from '../controllers/interfaces';
 
 export interface HttpServer {
   listen(port: number): Promise<void>;
@@ -29,7 +29,7 @@ type Schema = {
 };
 
 export interface HttpRoute {
-  method: "get" | "post" | "put" | "delete" | "patch";
+  method: 'get' | 'post' | 'put' | 'delete' | 'patch';
   url: string;
   handler: () => Controller;
   schema?: Schema;

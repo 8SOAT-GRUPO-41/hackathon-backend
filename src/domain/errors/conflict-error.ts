@@ -1,11 +1,11 @@
-import { ErrorCodes } from '@/domain/enums/error-codes'
+import { ErrorCodes } from '@/domain/enums/error-codes';
 
 export class ConflictError extends Error {
-  public readonly code: ErrorCodes
+  public readonly code: ErrorCodes;
 
   constructor(message: string) {
-    super(message)
-    this.name = 'ConflictError'
-    this.code = ErrorCodes.CONFLICT_ERROR
+    super(message);
+    this.name = 'ConflictError';
+    this.code = ErrorCodes.CONFLICT_ERROR;
   }
 }

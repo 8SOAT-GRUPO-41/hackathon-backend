@@ -1,11 +1,11 @@
-import { ErrorCodes } from '@/domain/enums/error-codes'
+import { ErrorCodes } from '@/domain/enums/error-codes';
 
 export class NotFoundError extends Error {
-  public readonly code: ErrorCodes
+  public readonly code: ErrorCodes;
 
   constructor(message: string) {
-    super(message)
-    this.name = 'NotFoundError'
-    this.code = ErrorCodes.NOT_FOUND
+    super(message);
+    this.name = 'NotFoundError';
+    this.code = ErrorCodes.NOT_FOUND;
   }
 }

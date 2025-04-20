@@ -1,6 +1,6 @@
-import { InvalidPasswordError, NotFoundError } from "@/domain/errors";
-import { IUserRepository } from "@/domain/repository/user-repository";
-import { ITokenService } from "@/domain/services/token-service";
+import { InvalidPasswordError, NotFoundError } from '@/domain/errors';
+import { IUserRepository } from '@/domain/repository/user-repository';
+import { ITokenService } from '@/domain/services/token-service';
 
 type AuthenticateInput = {
   email: string;
@@ -16,7 +16,7 @@ type AuthenticateOutput = {
 export class Authenticate {
   constructor(
     private readonly userRepository: IUserRepository,
-    private readonly tokenService: ITokenService
+    private readonly tokenService: ITokenService,
   ) {}
 
   async execute(input: AuthenticateInput): Promise<AuthenticateOutput> {
@@ -24,12 +24,12 @@ export class Authenticate {
 
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
-      throw new NotFoundError("Usuário não encontrado");
+      throw new NotFoundError('Usuário não encontrado');
     }
 
     const isValidPassword = await user.password.compare(password);
     if (!isValidPassword) {
-      throw new InvalidPasswordError("Senha inválida");
+      throw new InvalidPasswordError('Senha inválida');
     }
 
     const tokenPayload = {
@@ -37,11 +37,8 @@ export class Authenticate {
       email: user.email.value,
     };
 
-    const token = this.tokenService.generateToken(tokenPayload, "15m");
-    const refreshToken = this.tokenService.generateRefreshToken(
-      tokenPayload,
-      "7d"
-    );
+    const token = this.tokenService.generateToken(tokenPayload, '15m');
+    const refreshToken = this.tokenService.generateRefreshToken(tokenPayload, '7d');
 
     return {
       token,

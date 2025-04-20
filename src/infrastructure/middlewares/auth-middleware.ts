@@ -1,5 +1,5 @@
-import { ITokenService } from "@/domain/services/token-service";
-import { HttpRequest, HttpResponse } from "@/infrastructure/http/interfaces";
+import { ITokenService } from '@/domain/services/token-service';
+import { HttpRequest, HttpResponse } from '@/infrastructure/http/interfaces';
 
 // Definindo um tipo estendido para o objeto de requisição com dados do usuário
 type AuthenticatedRequest = HttpRequest & {
@@ -14,28 +14,26 @@ export class AuthMiddleware {
 
   async handle(httpRequest: HttpRequest): Promise<HttpResponse> {
     try {
-      const authHeader = httpRequest.headers?.["authorization"] as
-        | string
-        | undefined;
+      const authHeader = httpRequest.headers?.['authorization'] as string | undefined;
 
       if (!authHeader) {
         return {
           statusCode: 401,
           body: {
-            error: "Unauthorized",
-            message: "Token não fornecido",
+            error: 'Unauthorized',
+            message: 'Token não fornecido',
           },
         };
       }
 
-      const [bearer, token] = authHeader.split(" ");
+      const [bearer, token] = authHeader.split(' ');
 
-      if (bearer !== "Bearer" || !token) {
+      if (bearer !== 'Bearer' || !token) {
         return {
           statusCode: 401,
           body: {
-            error: "Unauthorized",
-            message: "Token inválido",
+            error: 'Unauthorized',
+            message: 'Token inválido',
           },
         };
       }
@@ -58,8 +56,8 @@ export class AuthMiddleware {
         return {
           statusCode: 401,
           body: {
-            error: "Unauthorized",
-            message: "Token inválido ou expirado",
+            error: 'Unauthorized',
+            message: 'Token inválido ou expirado',
           },
         };
       }
@@ -67,8 +65,8 @@ export class AuthMiddleware {
       return {
         statusCode: 500,
         body: {
-          error: "Internal Server Error",
-          message: "Ocorreu um erro ao processar sua solicitação",
+          error: 'Internal Server Error',
+          message: 'Ocorreu um erro ao processar sua solicitação',
         },
       };
     }

@@ -1,5 +1,5 @@
-import { RefreshToken } from "@/application/usecases/auth/refresh-token";
-import { HttpRequest, HttpResponse } from "@/infrastructure/http/interfaces";
+import { RefreshToken } from '@/application/usecases/auth/refresh-token';
+import { HttpRequest, HttpResponse } from '@/infrastructure/http/interfaces';
 
 type RefreshTokenRequestBody = {
   refreshToken: string;
@@ -8,19 +8,16 @@ type RefreshTokenRequestBody = {
 export class RefreshTokenController {
   constructor(private readonly refreshToken: RefreshToken) {}
 
-  async handle(
-    httpRequest: HttpRequest<RefreshTokenRequestBody>
-  ): Promise<HttpResponse> {
+  async handle(httpRequest: HttpRequest<RefreshTokenRequestBody>): Promise<HttpResponse> {
     try {
-      const { refreshToken } =
-        httpRequest.body || ({} as RefreshTokenRequestBody);
+      const { refreshToken } = httpRequest.body || ({} as RefreshTokenRequestBody);
 
       if (!refreshToken) {
         return {
           statusCode: 400,
           body: {
-            error: "Bad Request",
-            message: "Refresh token é obrigatório",
+            error: 'Bad Request',
+            message: 'Refresh token é obrigatório',
           },
         };
       }
@@ -35,8 +32,8 @@ export class RefreshTokenController {
       return {
         statusCode: 401,
         body: {
-          error: "Unauthorized",
-          message: "Refresh token inválido ou expirado",
+          error: 'Unauthorized',
+          message: 'Refresh token inválido ou expirado',
         },
       };
     }

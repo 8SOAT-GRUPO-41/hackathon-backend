@@ -1,6 +1,6 @@
-import { Authenticate } from "@/application/usecases/auth/authenticate";
-import { InvalidPasswordError, NotFoundError } from "@/domain/errors";
-import { HttpRequest, HttpResponse } from "@/infrastructure/http/interfaces";
+import { Authenticate } from '@/application/usecases/auth/authenticate';
+import { InvalidPasswordError, NotFoundError } from '@/domain/errors';
+import { HttpRequest, HttpResponse } from '@/infrastructure/http/interfaces';
 
 type AuthRequestBody = {
   email: string;
@@ -10,9 +10,7 @@ type AuthRequestBody = {
 export class AuthenticateController {
   constructor(private readonly authenticate: Authenticate) {}
 
-  async handle(
-    httpRequest: HttpRequest<AuthRequestBody>
-  ): Promise<HttpResponse> {
+  async handle(httpRequest: HttpRequest<AuthRequestBody>): Promise<HttpResponse> {
     try {
       const { email, password } = httpRequest.body || ({} as AuthRequestBody);
 
@@ -20,8 +18,8 @@ export class AuthenticateController {
         return {
           statusCode: 400,
           body: {
-            error: "Bad Request",
-            message: "Email e senha são obrigatórios",
+            error: 'Bad Request',
+            message: 'Email e senha são obrigatórios',
           },
         };
       }
@@ -37,7 +35,7 @@ export class AuthenticateController {
         return {
           statusCode: 404,
           body: {
-            error: "Not Found",
+            error: 'Not Found',
             message: error.message,
           },
         };
@@ -47,7 +45,7 @@ export class AuthenticateController {
         return {
           statusCode: 401,
           body: {
-            error: "Unauthorized",
+            error: 'Unauthorized',
             message: error.message,
           },
         };
@@ -56,8 +54,8 @@ export class AuthenticateController {
       return {
         statusCode: 500,
         body: {
-          error: "Internal Server Error",
-          message: "Ocorreu um erro ao processar sua solicitação",
+          error: 'Internal Server Error',
+          message: 'Ocorreu um erro ao processar sua solicitação',
         },
       };
     }

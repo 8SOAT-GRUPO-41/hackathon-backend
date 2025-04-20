@@ -1,8 +1,8 @@
-import { FastifyReply, FastifyRequest } from "fastify";
-import { AuthMiddleware } from "@/infrastructure/middlewares/auth-middleware";
+import { FastifyReply, FastifyRequest } from 'fastify';
+import { AuthMiddleware } from '@/infrastructure/middlewares/auth-middleware';
 
 // Estendendo a tipagem do FastifyRequest
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyRequest {
     user?: {
       id: string;

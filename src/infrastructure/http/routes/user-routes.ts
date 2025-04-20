@@ -1,30 +1,30 @@
 import {
   makeCreateUserController,
   makeDeleteUserController,
-} from "@/infrastructure/factories/user-controller-factory";
-import { errorResponseSchema } from "@/infrastructure/swagger/error-response-schema";
-import { ErrorCodes } from "@/domain/enums/error-codes";
-import type { HttpRoute } from "@/infrastructure/http/interfaces";
+} from '@/infrastructure/factories/user-controller-factory';
+import { errorResponseSchema } from '@/infrastructure/swagger/error-response-schema';
+import { ErrorCodes } from '@/domain/enums/error-codes';
+import type { HttpRoute } from '@/infrastructure/http/interfaces';
 
 export const userRoutes = [
   {
-    method: "post",
-    url: "/users",
+    method: 'post',
+    url: '/users',
     handler: makeCreateUserController,
     schema: {
-      tags: ["Users"],
-      summary: "Create a new user",
+      tags: ['Users'],
+      summary: 'Create a new user',
       body: {
-        type: "object",
+        type: 'object',
         properties: {
-          email: { type: "string", format: "email" },
-          password: { type: "string", minLength: 8 },
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 8 },
         },
-        required: ["email", "password"],
+        required: ['email', 'password'],
       },
       response: {
         201: {
-          type: "string",
+          type: 'string',
         },
         400: errorResponseSchema(400, ErrorCodes.BAD_REQUEST),
         409: errorResponseSchema(409, ErrorCodes.CONFLICT_ERROR),
@@ -34,23 +34,23 @@ export const userRoutes = [
     },
   },
   {
-    method: "delete",
-    url: "/users/:id",
+    method: 'delete',
+    url: '/users/:id',
     handler: makeDeleteUserController,
     protected: true,
     schema: {
-      tags: ["Users"],
-      summary: "Delete a user by id",
+      tags: ['Users'],
+      summary: 'Delete a user by id',
       params: {
-        type: "object",
+        type: 'object',
         properties: {
-          id: { type: "string" },
+          id: { type: 'string' },
         },
-        required: ["id"],
+        required: ['id'],
       },
       response: {
         200: {
-          type: "string",
+          type: 'string',
         },
         404: errorResponseSchema(404, ErrorCodes.NOT_FOUND),
         500: errorResponseSchema(500, ErrorCodes.INTERNAL_SERVER_ERROR),

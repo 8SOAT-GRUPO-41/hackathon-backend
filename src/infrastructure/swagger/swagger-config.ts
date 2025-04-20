@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from 'openapi-types'
+import type { OpenAPIV3 } from 'openapi-types';
 
 const swaggerConfig: Omit<OpenAPIV3.Document, 'paths'> = {
   openapi: '3.0.0',
@@ -20,6 +20,6 @@ const swaggerConfig: Omit<OpenAPIV3.Document, 'paths'> = {
       description: 'Authentication related end-points',
     },
   ],
-}
+};
 
-export default swaggerConfig
+export default swaggerConfig;

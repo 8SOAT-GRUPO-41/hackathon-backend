@@ -1,12 +1,12 @@
-import fastify, { type FastifyInstance } from "fastify";
-import fastifySwagger from "@fastify/swagger";
-import fastifySwaggerUI from "@fastify/swagger-ui";
-import swaggerConfig from "@/infrastructure/swagger/swagger-config";
-import { authRoutes, userRoutes } from "@/infrastructure/http/routes";
-import type { HttpServer } from "@/infrastructure/http/interfaces";
-import { adaptFastifyRoute } from "./adapter";
-import { adaptFastifyMiddleware } from "./middleware-adapter";
-import { makeAuthMiddleware } from "@/infrastructure/factories/auth-factories";
+import fastify, { type FastifyInstance } from 'fastify';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUI from '@fastify/swagger-ui';
+import swaggerConfig from '@/infrastructure/swagger/swagger-config';
+import { authRoutes, userRoutes } from '@/infrastructure/http/routes';
+import type { HttpServer } from '@/infrastructure/http/interfaces';
+import { adaptFastifyRoute } from './adapter';
+import { adaptFastifyMiddleware } from './middleware-adapter';
+import { makeAuthMiddleware } from '@/infrastructure/factories/auth-factories';
 
 export class FastifyHttpServer implements HttpServer {
   private server: FastifyInstance;
@@ -14,12 +14,12 @@ export class FastifyHttpServer implements HttpServer {
   constructor() {
     this.server = fastify({
       logger:
-        process.env.NODE_ENV === "development"
+        process.env.NODE_ENV === 'development'
           ? {
               transport: {
-                target: "pino-pretty",
+                target: 'pino-pretty',
               },
-              level: "debug",
+              level: 'debug',
             }
           : true,
     });
@@ -27,7 +27,7 @@ export class FastifyHttpServer implements HttpServer {
 
   private async buildRoutes(): Promise<void> {
     const routes = [...userRoutes, ...authRoutes];
-    const apiPrefix = "/api/v1";
+    const apiPrefix = '/api/v1';
 
     // Middleware de autenticação para rotas protegidas
     const authMiddleware = adaptFastifyMiddleware(makeAuthMiddleware());
@@ -43,7 +43,7 @@ export class FastifyHttpServer implements HttpServer {
       this.server[route.method](
         `${apiPrefix}${route.url}`,
         routeOptions,
-        adaptFastifyRoute(route.handler())
+        adaptFastifyRoute(route.handler()),
       );
     }
   }
@@ -54,7 +54,7 @@ export class FastifyHttpServer implements HttpServer {
         openapi: swaggerConfig,
       })
       .register(fastifySwaggerUI, {
-        routePrefix: "/docs",
+        routePrefix: '/docs',
       });
   }
 
@@ -62,6 +62,6 @@ export class FastifyHttpServer implements HttpServer {
     await this.buildDocs();
     await this.buildRoutes();
     await this.server.ready();
-    this.server.listen({ port, host: "0.0.0.0" });
+    this.server.listen({ port, host: '0.0.0.0' });
   }
 }
