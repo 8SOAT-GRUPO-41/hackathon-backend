@@ -4,7 +4,7 @@ import { ProcessingJob } from '@/domain/entities/processing-job';
 export class Video extends Entity<string> {
   private _userId: string;
   private _originalKey: string;
-  private _resultKey?: string;
+  private _resultKey: string;
   private _createdAt: Date;
   private _processingJob?: ProcessingJob;
   private _presignedUrl?: string;
@@ -14,10 +14,10 @@ export class Video extends Entity<string> {
     userId: string,
     public name: string,
     originalKey: string,
+    resultKey: string,
     public description?: string,
     createdAt: Date = new Date(),
     processingJob?: ProcessingJob,
-    resultKey?: string,
     presignedUrl?: string,
   ) {
     super(id);
@@ -29,8 +29,11 @@ export class Video extends Entity<string> {
     this._presignedUrl = presignedUrl;
   }
 
-  static create(userId: string, name: string, originalKey: string, description?: string): Video {
-    return new Video(crypto.randomUUID(), userId, name, originalKey, description, new Date());
+  static create(userId: string, name: string, description?: string): Video {
+    const videoId = crypto.randomUUID();
+    const originalKey = `raw/${videoId}.mp4`;
+    const resultKey = `frames/${videoId}.zip`;
+    return new Video(videoId, userId, name, originalKey, resultKey, description, new Date());
   }
 
   static restore(params: {
@@ -41,7 +44,7 @@ export class Video extends Entity<string> {
     description?: string;
     createdAt: Date;
     processingJob?: ProcessingJob;
-    resultKey?: string;
+    resultKey: string;
     presignedUrl?: string;
   }): Video {
     return new Video(
@@ -49,10 +52,10 @@ export class Video extends Entity<string> {
       params.userId,
       params.name,
       params.originalKey,
+      params.resultKey,
       params.description,
       params.createdAt,
       params.processingJob,
-      params.resultKey,
       params.presignedUrl,
     );
   }
@@ -65,12 +68,8 @@ export class Video extends Entity<string> {
     return this._originalKey;
   }
 
-  get resultKey(): string | undefined {
+  get resultKey(): string {
     return this._resultKey;
-  }
-
-  set resultKey(key: string | undefined) {
-    this._resultKey = key;
   }
 
   setPresignedUrl(url: string) {

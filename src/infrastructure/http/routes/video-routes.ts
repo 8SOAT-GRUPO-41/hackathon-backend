@@ -2,7 +2,10 @@ import { makeCreateVideoController } from '@/infrastructure/factories/videos-con
 import { errorResponseSchema } from '@/infrastructure/swagger/error-response-schema';
 import { ErrorCodes } from '@/domain/enums/error-codes';
 import type { HttpRoute } from '@/infrastructure/http/interfaces';
-
+import {
+  makeGetZipVideoDownloadUrlController,
+  makeGetUserVideosController,
+} from '@/infrastructure/factories/user-controller-factory';
 export const videoRoutes: HttpRoute[] = [
   {
     method: 'post',
@@ -33,6 +36,28 @@ export const videoRoutes: HttpRoute[] = [
         422: errorResponseSchema(422, ErrorCodes.UNPROCESSABLE_ENTITY),
         500: errorResponseSchema(500, ErrorCodes.INTERNAL_SERVER_ERROR),
       },
+    },
+  },
+  {
+    method: 'get',
+    url: '/videos/user/:userId',
+    handler: makeGetUserVideosController,
+    protected: true,
+    schema: {
+      tags: ['Videos'],
+      summary: 'Get all videos for a user',
+      response: {},
+    },
+  },
+  {
+    method: 'get',
+    url: '/videos/download/:videoId',
+    handler: makeGetZipVideoDownloadUrlController,
+    protected: true,
+    schema: {
+      tags: ['Videos'],
+      summary: 'Get the download url for a video',
+      response: {},
     },
   },
 ];

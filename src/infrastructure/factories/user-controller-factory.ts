@@ -5,7 +5,12 @@ import { SignInController } from '../controllers/auth/sign-in-controller';
 import { CreateUserController } from '../controllers/user/create-user-controller';
 import { DeleteUserController } from '../controllers/user/delete-user-controller';
 import { UserRepository } from '../repository/user-repository';
-
+import { GetUserVideos } from '@/application/usecases/video/get-user-videos';
+import { makeVideoRepository } from './repository/video-repository-factory';
+import { GetUserVideosController } from '../controllers/videos/get-user-videos-controller';
+import { GetZipVideoDownloadUrlController } from '../controllers/videos/get-zip-video-controller';
+import { GetZipVideo } from '@/application/usecases/video/get-zip-video';
+import { makeS3Gateway } from './s3-gateway-factory';
 export const makeUserRepository = () => {
   return new UserRepository();
 };
@@ -32,4 +37,20 @@ export const makeSignIn = () => {
 
 export const makeSignInController = () => {
   return new SignInController(makeSignIn());
+};
+
+export const makeGetUserVideosUseCase = () => {
+  return new GetUserVideos(makeVideoRepository());
+};
+
+export const makeGetUserVideosController = () => {
+  return new GetUserVideosController(makeGetUserVideosUseCase());
+};
+
+export const makeGetZipVideoDownloadUrlUseCase = () => {
+  return new GetZipVideo(makeVideoRepository(), makeS3Gateway());
+};
+
+export const makeGetZipVideoDownloadUrlController = () => {
+  return new GetZipVideoDownloadUrlController(makeGetZipVideoDownloadUrlUseCase());
 };

@@ -4,9 +4,9 @@ import { logger } from '@/infrastructure/logger';
 import { SQSConsumerService } from '@/infrastructure/services/sqs-consumer-service';
 
 export class SQSConsumer {
-  private sqsService: SQSConsumerService;
+  private readonly sqsService: SQSConsumerService;
   private isRunning: boolean = false;
-  private pollingIntervalMs: number;
+  private readonly pollingIntervalMs: number;
 
   constructor(
     private readonly queueUrl: string,

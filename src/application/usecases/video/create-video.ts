@@ -21,12 +21,10 @@ export class CreateVideo {
 
   async execute(input: Input): Promise<Output> {
     const { userId, name, description } = input;
-    const videoId = crypto.randomUUID();
-    const fileKey = `raw/${videoId}.mp4`;
-    const video = Video.create(userId, name, fileKey, description);
+    const video = Video.create(userId, name, description);
     await this.videoRepository.save(video);
     const uploadUrl = await this.storageService.getUploadPresignedUrl({
-      fileKey,
+      fileKey: video.originalKey,
       contentType: 'video/mp4',
       expiresIn: 3600,
     });

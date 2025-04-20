@@ -143,6 +143,7 @@ export class VideoRepository implements IVideoRepository {
       userId: video.userId,
       name: video.name,
       originalKey: video.originalKey,
+      resultKey: video.resultKey ?? '',
       description: video.description ?? undefined,
       createdAt: video.createdAt,
       processingJob: video.processingJobs
