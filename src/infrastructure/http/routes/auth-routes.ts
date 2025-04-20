@@ -2,6 +2,7 @@ import { makeSignInController } from '@/infrastructure/factories/user-controller
 import {
   makeAuthenticateController,
   makeRefreshTokenController,
+  makeSignUpController,
 } from '@/infrastructure/factories/auth-factories';
 import { errorResponseSchema } from '@/infrastructure/swagger/error-response-schema';
 import { ErrorCodes } from '@/domain/enums/error-codes';
@@ -90,6 +91,23 @@ export const authRoutes = [
         400: errorResponseSchema(400, ErrorCodes.BAD_REQUEST),
         401: errorResponseSchema(401, ErrorCodes.INVALID_PASSWORD),
         500: errorResponseSchema(500, ErrorCodes.INTERNAL_SERVER_ERROR),
+      },
+    },
+  },
+  {
+    method: 'post',
+    url: '/sign-up',
+    handler: makeSignUpController,
+    schema: {
+      tags: ['Auth'],
+      summary: 'Create a new user',
+      body: {
+        type: 'object',
+        properties: {
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 8 },
+        },
+        required: ['email', 'password'],
       },
     },
   },

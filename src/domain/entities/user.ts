@@ -27,6 +27,10 @@ export class User extends Entity<string> {
     this._notifications = notifications;
   }
 
+  static create(email: UserEmail, password: UserPassword): User {
+    return new User(crypto.randomUUID(), email, password);
+  }
+
   get email(): UserEmail {
     return this._email;
   }

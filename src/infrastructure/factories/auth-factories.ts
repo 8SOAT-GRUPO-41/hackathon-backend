@@ -5,6 +5,8 @@ import { RefreshTokenController } from '../controllers/auth/refresh-token-contro
 import { makeUserRepository } from './user-controller-factory';
 import { makeJwtTokenService } from './token-service-factory';
 import { AuthMiddleware } from '../middlewares/auth-middleware';
+import { SignUp } from '@/application/usecases/auth/sign-up';
+import { SignUpController } from '../controllers/auth/sign-up-controller';
 
 export const makeAuthenticateUseCase = () => {
   return new Authenticate(makeUserRepository(), makeJwtTokenService());
@@ -24,4 +26,12 @@ export const makeRefreshTokenController = () => {
 
 export const makeAuthMiddleware = () => {
   return new AuthMiddleware(makeJwtTokenService());
+};
+
+export const makeSignUpUseCase = () => {
+  return new SignUp(makeUserRepository());
+};
+
+export const makeSignUpController = () => {
+  return new SignUpController(makeSignUpUseCase());
 };
