@@ -10,7 +10,6 @@ import type { HttpResponse } from '@/infrastructure/http/interfaces';
 
 export class HttpErrorHandler {
   handle(error: unknown): HttpResponse {
-    console.log('chegou aqui', error);
     if (error instanceof NotFoundError) {
       return this.createErrorResponse(error.code, error.message, HttpStatusCode.NOT_FOUND);
     }

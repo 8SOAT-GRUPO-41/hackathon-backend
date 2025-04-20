@@ -94,9 +94,21 @@ export class ProcessingJob extends Entity<string> {
     this._notifications.push(notification);
   }
 
-  // Example of a domain behavior: updating job status.
   updateStatus(newStatus: JobStatus): void {
     const history = new JobStatusHistory(this.id, newStatus);
     this.addStatusHistory(history);
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      videoId: this.videoId,
+      requestedAt: this.requestedAt,
+      statusHistory: this.statusHistory.map((statusHistory) => statusHistory.toJSON()),
+      notifications: this.notifications,
+      startedAt: this.startedAt,
+      finishedAt: this.finishedAt,
+      errorMessage: this.errorMessage,
+    };
   }
 }

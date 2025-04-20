@@ -1,4 +1,5 @@
 import { ProcessingJob } from '@/domain/entities/processing-job';
+import { Video } from '@/domain/entities/video';
 import { JobStatus } from '@/domain/enums/job-status';
 import { NotFoundError } from '@/domain/errors';
 import { IVideoRepository } from '@/domain/repository/video-repository';
@@ -11,17 +12,18 @@ type Input = {
 export class TrackProcessingJob {
   constructor(private readonly videoRepository: IVideoRepository) {}
 
-  async execute(input: Input): Promise<void> {
+  async execute(input: Input): Promise<Video> {
     const video = await this.videoRepository.findById(input.videoId);
     if (!video) {
       throw new NotFoundError('Video not found');
     }
-    const processingJobs = video.processingJobs;
-    if (processingJobs.length === 0) {
+    const job = video.processingJob;
+    if (!job) {
       video.addProcessingJob(ProcessingJob.create(input.videoId));
+    } else {
+      job.updateStatus(input.jobStatus);
     }
-    const job = processingJobs[processingJobs.length - 1];
-    job.updateStatus(input.jobStatus);
-    await this.videoRepository.saveProcessingJob(job);
+    await this.videoRepository.save(video);
+    return video;
   }
 }

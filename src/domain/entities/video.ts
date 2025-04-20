@@ -6,7 +6,7 @@ export class Video extends Entity<string> {
   private _originalKey: string;
   private _resultKey?: string;
   private _createdAt: Date;
-  private _processingJobs: ProcessingJob[];
+  private _processingJob?: ProcessingJob;
   private _presignedUrl?: string;
 
   constructor(
@@ -16,7 +16,7 @@ export class Video extends Entity<string> {
     originalKey: string,
     public description?: string,
     createdAt: Date = new Date(),
-    processingJobs: ProcessingJob[] = [],
+    processingJob?: ProcessingJob,
     resultKey?: string,
     presignedUrl?: string,
   ) {
@@ -24,13 +24,13 @@ export class Video extends Entity<string> {
     this._userId = userId;
     this._originalKey = originalKey;
     this._createdAt = createdAt;
-    this._processingJobs = processingJobs;
+    this._processingJob = processingJob;
     this._resultKey = resultKey;
     this._presignedUrl = presignedUrl;
   }
 
   static create(userId: string, name: string, originalKey: string, description?: string): Video {
-    return new Video(crypto.randomUUID(), userId, name, originalKey, description, new Date(), []);
+    return new Video(crypto.randomUUID(), userId, name, originalKey, description, new Date());
   }
 
   static restore(params: {
@@ -40,7 +40,7 @@ export class Video extends Entity<string> {
     originalKey: string;
     description?: string;
     createdAt: Date;
-    processingJobs: ProcessingJob[];
+    processingJob?: ProcessingJob;
     resultKey?: string;
     presignedUrl?: string;
   }): Video {
@@ -51,7 +51,7 @@ export class Video extends Entity<string> {
       params.originalKey,
       params.description,
       params.createdAt,
-      params.processingJobs,
+      params.processingJob,
       params.resultKey,
       params.presignedUrl,
     );
@@ -85,11 +85,25 @@ export class Video extends Entity<string> {
     return this._createdAt;
   }
 
-  get processingJobs(): ProcessingJob[] {
-    return this._processingJobs;
+  get processingJob(): ProcessingJob | undefined {
+    return this._processingJob;
   }
 
   addProcessingJob(job: ProcessingJob): void {
-    this._processingJobs.push(job);
+    this._processingJob = job;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      userId: this.userId,
+      name: this.name,
+      originalKey: this.originalKey,
+      description: this.description,
+      createdAt: this.createdAt,
+      processingJob: this.processingJob?.toJSON(),
+      resultKey: this.resultKey,
+      presignedUrl: this.presignedUrl,
+    };
   }
 }

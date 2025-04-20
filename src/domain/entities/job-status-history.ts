@@ -7,19 +7,13 @@ export class JobStatusHistory extends Entity<number> {
   private _changedAt: Date;
 
   constructor(jobId: string, status: JobStatus, changedAt: Date = new Date()) {
-    // Here the id is managed by the database (auto-increment). In memory you may leave it unset.
     super(0);
     this._jobId = jobId;
     this._status = status;
     this._changedAt = changedAt;
   }
 
-  static restore(params: {
-    id: number;
-    jobId: string;
-    status: JobStatus;
-    changedAt: Date;
-  }): JobStatusHistory {
+  static restore(params: { jobId: string; status: JobStatus; changedAt: Date }): JobStatusHistory {
     return new JobStatusHistory(params.jobId, params.status, params.changedAt);
   }
 
@@ -33,5 +27,13 @@ export class JobStatusHistory extends Entity<number> {
 
   get changedAt(): Date {
     return this._changedAt;
+  }
+
+  toJSON() {
+    return {
+      jobId: this.jobId,
+      status: this.status,
+      changedAt: this.changedAt,
+    };
   }
 }

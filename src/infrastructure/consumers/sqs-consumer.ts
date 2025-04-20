@@ -35,6 +35,7 @@ export class SQSConsumer {
           const controller = makeTrackProcessingJobController();
           const processPromises = messages.map(async (message) => {
             try {
+              logger.info({ message }, 'Processing message');
               if (!message.Body || !message.MessageId) {
                 logger.warn({ messageId: message.MessageId }, 'Message body is empty');
                 return;
