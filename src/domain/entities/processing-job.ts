@@ -32,6 +32,10 @@ export class ProcessingJob extends Entity<string> {
     this._errorMessage = errorMessage;
   }
 
+  static create(videoId: string): ProcessingJob {
+    return new ProcessingJob(crypto.randomUUID(), videoId, new Date());
+  }
+
   get videoId(): string {
     return this._videoId;
   }
