@@ -14,6 +14,15 @@ export class JobStatusHistory extends Entity<number> {
     this._changedAt = changedAt;
   }
 
+  static restore(params: {
+    id: number;
+    jobId: string;
+    status: JobStatus;
+    changedAt: Date;
+  }): JobStatusHistory {
+    return new JobStatusHistory(params.jobId, params.status, params.changedAt);
+  }
+
   get jobId(): string {
     return this._jobId;
   }

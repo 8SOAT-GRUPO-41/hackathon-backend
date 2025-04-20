@@ -2,6 +2,7 @@ import type { Controller } from '../controllers/interfaces';
 
 export interface HttpServer {
   listen(port: number): Promise<void>;
+  close(): Promise<void>;
 }
 
 export interface HttpResponse<T = unknown> {

@@ -66,4 +66,8 @@ export class FastifyHttpServer implements HttpServer {
     await this.server.ready();
     this.server.listen({ port, host: '0.0.0.0' });
   }
+
+  async close(): Promise<void> {
+    await this.server.close();
+  }
 }

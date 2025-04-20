@@ -1,13 +1,36 @@
+import { JobStatusHistory } from '@/domain/entities/job-status-history';
+import { Notification } from '@/domain/entities/notification';
+import { ProcessingJob } from '@/domain/entities/processing-job';
 import { Video } from '@/domain/entities/video';
-import { Video as VideoPrisma } from '@prisma/client';
+import { Channel } from '@/domain/enums/channel';
+import { JobStatus } from '@/domain/enums/job-status';
 import { IVideoRepository } from '@/domain/repository/video-repository';
+import {
+  JobStatusHistory as JobStatusHistoryPrisma,
+  Notification as NotificationPrisma,
+  ProcessingJob as ProcessingJobPrisma,
+  Video as VideoPrisma,
+} from '@prisma/client';
 import prisma from '../prisma';
+
+type ProcessingJobWithStatusHistoryAndNotification = ProcessingJobPrisma & {
+  statusHistory: JobStatusHistoryPrisma[];
+  Notification: NotificationPrisma[];
+};
 
 export class VideoRepository implements IVideoRepository {
   async findById(id: string): Promise<Video | null> {
     const video = await prisma.video.findUnique({
       where: {
         id,
+      },
+      include: {
+        processingJobs: {
+          include: {
+            statusHistory: true,
+            Notification: true,
+          },
+        },
       },
     });
     if (!video) {
@@ -19,6 +42,14 @@ export class VideoRepository implements IVideoRepository {
     const videos = await prisma.video.findMany({
       where: {
         userId,
+      },
+      include: {
+        processingJobs: {
+          include: {
+            statusHistory: true,
+            Notification: true,
+          },
+        },
       },
     });
     return videos.map((video) => this.mapToDomain(video));
@@ -35,13 +66,41 @@ export class VideoRepository implements IVideoRepository {
     });
   }
 
-  private mapToDomain(video: VideoPrisma): Video {
-    return new Video(
-      video.id,
-      video.userId,
-      video.name,
-      video.originalKey,
-      video.description ?? undefined,
-    );
+  private mapToDomain(
+    video: VideoPrisma & { processingJobs: ProcessingJobWithStatusHistoryAndNotification[] },
+  ): Video {
+    return Video.restore({
+      id: video.id,
+      userId: video.userId,
+      name: video.name,
+      originalKey: video.originalKey,
+      description: video.description ?? undefined,
+      createdAt: video.createdAt,
+      processingJobs: video.processingJobs.map((job) =>
+        ProcessingJob.restore({
+          id: job.id,
+          videoId: job.videoId,
+          requestedAt: job.requestedAt,
+          statusHistory: job.statusHistory.map((statusHistory) =>
+            JobStatusHistory.restore({
+              id: statusHistory.id,
+              jobId: statusHistory.jobId,
+              status: statusHistory.status as JobStatus,
+              changedAt: statusHistory.changedAt,
+            }),
+          ),
+          notifications: job.Notification.map((notification) =>
+            Notification.restore({
+              id: notification.id,
+              userId: notification.userId,
+              channel: notification.channel as Channel,
+              payload: notification.payload,
+              sentAt: notification.sentAt,
+              jobId: notification.jobId ?? undefined,
+            }),
+          ),
+        }),
+      ),
+    });
   }
 }

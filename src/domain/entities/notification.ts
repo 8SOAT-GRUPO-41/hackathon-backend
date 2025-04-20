@@ -24,6 +24,24 @@ export class Notification extends Entity<string> {
     this._jobId = jobId;
   }
 
+  static restore(params: {
+    id: string;
+    userId: string;
+    channel: Channel;
+    payload: any;
+    sentAt: Date;
+    jobId?: string;
+  }): Notification {
+    return new Notification(
+      params.id,
+      params.userId,
+      params.channel,
+      params.payload,
+      params.sentAt,
+      params.jobId,
+    );
+  }
+
   get userId(): string {
     return this._userId;
   }

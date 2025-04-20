@@ -1,7 +1,7 @@
 import { Entity } from '@/domain/common/entity';
-import { JobStatus } from '@/domain/enums/job-status';
 import { JobStatusHistory } from '@/domain/entities/job-status-history';
 import { Notification } from '@/domain/entities/notification';
+import { JobStatus } from '@/domain/enums/job-status';
 
 export class ProcessingJob extends Entity<string> {
   private _videoId: string;
@@ -34,6 +34,28 @@ export class ProcessingJob extends Entity<string> {
 
   static create(videoId: string): ProcessingJob {
     return new ProcessingJob(crypto.randomUUID(), videoId, new Date());
+  }
+
+  static restore(params: {
+    id: string;
+    videoId: string;
+    requestedAt: Date;
+    statusHistory: JobStatusHistory[];
+    notifications: Notification[];
+    startedAt?: Date;
+    finishedAt?: Date;
+    errorMessage?: string;
+  }): ProcessingJob {
+    return new ProcessingJob(
+      params.id,
+      params.videoId,
+      params.requestedAt,
+      params.statusHistory,
+      params.notifications,
+      params.startedAt,
+      params.finishedAt,
+      params.errorMessage,
+    );
   }
 
   get videoId(): string {

@@ -33,6 +33,30 @@ export class Video extends Entity<string> {
     return new Video(crypto.randomUUID(), userId, name, originalKey, description, new Date(), []);
   }
 
+  static restore(params: {
+    id: string;
+    userId: string;
+    name: string;
+    originalKey: string;
+    description?: string;
+    createdAt: Date;
+    processingJobs: ProcessingJob[];
+    resultKey?: string;
+    presignedUrl?: string;
+  }): Video {
+    return new Video(
+      params.id,
+      params.userId,
+      params.name,
+      params.originalKey,
+      params.description,
+      params.createdAt,
+      params.processingJobs,
+      params.resultKey,
+      params.presignedUrl,
+    );
+  }
+
   get userId(): string {
     return this._userId;
   }

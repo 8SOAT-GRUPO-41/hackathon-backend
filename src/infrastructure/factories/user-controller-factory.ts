@@ -1,10 +1,10 @@
-import { CreateUser } from '@/application/usecases/user/create-user';
-import { CreateUserController } from '../controllers/user/create-user-controller';
-import { UserRepository } from '../repository/user-repository';
-import { DeleteUserController } from '../controllers/user/delete-user-controller';
-import { DeleteUser } from '@/application/usecases/user/delete-user';
 import { SignIn } from '@/application/usecases/auth/sign-in';
+import { CreateUser } from '@/application/usecases/user/create-user';
+import { DeleteUser } from '@/application/usecases/user/delete-user';
 import { SignInController } from '../controllers/auth/sign-in-controller';
+import { CreateUserController } from '../controllers/user/create-user-controller';
+import { DeleteUserController } from '../controllers/user/delete-user-controller';
+import { UserRepository } from '../repository/user-repository';
 
 export const makeUserRepository = () => {
   return new UserRepository();
