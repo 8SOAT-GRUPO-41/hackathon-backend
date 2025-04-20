@@ -11,7 +11,7 @@ export const makeSqsProducer = () => {
     },
   });
 
-  const queueUrl = process.env.SQS_QUEUE_URL || '';
+  const queueUrl = process.env.NOTIFICATION_QUEUE_URL || '';
 
   return new SqsProducer(sqsClient, queueUrl);
 };

@@ -23,14 +23,12 @@ export class SqsProducer implements IQueueService {
   }
 
   async sendMessage<T>(message: QueueMessageType<T>): Promise<void> {
-    const { deduplicationId, groupId, payload } = message;
+    const { payload } = message;
 
     await this.sqsClient.send(
       new SendMessageCommand({
         QueueUrl: this.queueUrl,
         MessageBody: JSON.stringify(payload),
-        MessageGroupId: groupId,
-        MessageDeduplicationId: deduplicationId,
       }),
     );
   }
