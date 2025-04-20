@@ -66,6 +66,26 @@ export class VideoRepository implements IVideoRepository {
     });
   }
 
+  async saveProcessingJob(processingJob: ProcessingJob): Promise<void> {
+    await prisma.processingJob.create({
+      data: {
+        id: processingJob.id,
+        videoId: processingJob.videoId,
+        requestedAt: processingJob.requestedAt,
+        errorMessage: processingJob.errorMessage,
+        startedAt: processingJob.startedAt,
+        finishedAt: processingJob.finishedAt,
+        statusHistory: {
+          create: processingJob.statusHistory.map((statusHistory) => ({
+            id: statusHistory.id,
+            status: statusHistory.status as JobStatus,
+            changedAt: statusHistory.changedAt,
+          })),
+        },
+      },
+    });
+  }
+
   private mapToDomain(
     video: VideoPrisma & { processingJobs: ProcessingJobWithStatusHistoryAndNotification[] },
   ): Video {
