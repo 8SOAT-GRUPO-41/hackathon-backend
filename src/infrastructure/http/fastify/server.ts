@@ -1,8 +1,8 @@
-import fastify, { type FastifyInstance } from 'fastify';
+import fastify, { RouteOptions, type FastifyInstance } from 'fastify';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
 import swaggerConfig from '@/infrastructure/swagger/swagger-config';
-import { authRoutes, userRoutes } from '@/infrastructure/http/routes';
+import { authRoutes, userRoutes, videoRoutes } from '@/infrastructure/http/routes';
 import type { HttpServer } from '@/infrastructure/http/interfaces';
 import { adaptFastifyRoute } from './adapter';
 import { adaptFastifyMiddleware } from './middleware-adapter';
@@ -26,14 +26,16 @@ export class FastifyHttpServer implements HttpServer {
   }
 
   private async buildRoutes(): Promise<void> {
-    const routes = [...userRoutes, ...authRoutes];
+    const routes = [...userRoutes, ...authRoutes, ...videoRoutes];
     const apiPrefix = '/api/v1';
 
     // Middleware de autenticação para rotas protegidas
     const authMiddleware = adaptFastifyMiddleware(makeAuthMiddleware());
 
     for (const route of routes) {
-      const routeOptions: any = { schema: route.schema };
+      const routeOptions: Partial<RouteOptions> = {
+        schema: route.schema,
+      };
 
       // Se a rota for protegida, adiciona o middleware de autenticação
       if (route.protected) {

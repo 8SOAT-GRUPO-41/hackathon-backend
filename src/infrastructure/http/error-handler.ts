@@ -1,10 +1,16 @@
 import { HttpStatusCode } from '@/infrastructure/http/helper';
-import { NotFoundError, ConflictError, InvalidPasswordError } from '@/domain/errors';
+import {
+  NotFoundError,
+  ConflictError,
+  InvalidPasswordError,
+  UnauthorizedError,
+} from '@/domain/errors';
 import { ErrorCodes } from '@/domain/enums/error-codes';
 import type { HttpResponse } from '@/infrastructure/http/interfaces';
 
 export class HttpErrorHandler {
   handle(error: unknown): HttpResponse {
+    console.log('chegou aqui', error);
     if (error instanceof NotFoundError) {
       return this.createErrorResponse(error.code, error.message, HttpStatusCode.NOT_FOUND);
     }
@@ -19,6 +25,10 @@ export class HttpErrorHandler {
 
     if (error instanceof ConflictError) {
       return this.createErrorResponse(error.code, error.message, HttpStatusCode.CONFLICT);
+    }
+
+    if (error instanceof UnauthorizedError) {
+      return this.createErrorResponse(error.code, error.message, HttpStatusCode.UNAUTHORIZED);
     }
 
     if (error instanceof InvalidPasswordError) {

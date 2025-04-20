@@ -14,6 +14,7 @@ export interface HttpRequest<B = unknown, Q = unknown, P = unknown> {
   query: Q;
   params: P;
   headers?: Record<string, unknown>;
+  userId?: string;
 }
 
 type Schema = {

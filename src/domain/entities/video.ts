@@ -7,14 +7,18 @@ export class Video extends Entity<string> {
   private _resultKey?: string;
   private _createdAt: Date;
   private _processingJobs: ProcessingJob[];
+  private _presignedUrl?: string;
 
   constructor(
     id: string,
     userId: string,
+    public name: string,
     originalKey: string,
+    public description?: string,
     createdAt: Date = new Date(),
     processingJobs: ProcessingJob[] = [],
     resultKey?: string,
+    presignedUrl?: string,
   ) {
     super(id);
     this._userId = userId;
@@ -22,6 +26,11 @@ export class Video extends Entity<string> {
     this._createdAt = createdAt;
     this._processingJobs = processingJobs;
     this._resultKey = resultKey;
+    this._presignedUrl = presignedUrl;
+  }
+
+  static create(userId: string, name: string, originalKey: string, description?: string): Video {
+    return new Video(crypto.randomUUID(), userId, name, originalKey, description, new Date(), []);
   }
 
   get userId(): string {
@@ -38,6 +47,14 @@ export class Video extends Entity<string> {
 
   set resultKey(key: string | undefined) {
     this._resultKey = key;
+  }
+
+  setPresignedUrl(url: string) {
+    this._presignedUrl = url;
+  }
+
+  get presignedUrl(): string | undefined {
+    return this._presignedUrl;
   }
 
   get createdAt(): Date {

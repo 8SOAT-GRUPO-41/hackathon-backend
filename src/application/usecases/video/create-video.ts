@@ -4,8 +4,8 @@ import { IVideoRepository } from '@/domain/repository/video-repository';
 
 type Input = {
   userId: string;
-  contentType: string;
-  expiresIn?: number;
+  name: string;
+  description?: string;
 };
 
 type Output = {
@@ -20,15 +20,15 @@ export class CreateVideo {
   ) {}
 
   async execute(input: Input): Promise<Output> {
-    const { userId, contentType, expiresIn } = input;
+    const { userId, name, description } = input;
     const videoId = crypto.randomUUID();
     const fileKey = `/raw/${videoId}.mp4`;
-    const video = new Video(crypto.randomUUID(), userId, fileKey);
+    const video = Video.create(userId, name, fileKey, description);
     await this.videoRepository.save(video);
     const uploadUrl = await this.storageService.getUploadPresignedUrl({
       fileKey,
-      contentType,
-      expiresIn,
+      contentType: 'video/mp4',
+      expiresIn: 3600,
     });
     return {
       video,
