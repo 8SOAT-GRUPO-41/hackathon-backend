@@ -9,21 +9,32 @@ type Input = {
   jobStatus: JobStatus;
 };
 
+type Output = {
+  video: Video;
+  statusUpdated: boolean;
+  currentStatus: JobStatus | undefined;
+};
+
 export class TrackProcessingJob {
   constructor(
     private readonly videoRepository: IVideoRepository,
     private readonly queueService: IQueueService,
   ) {}
-  async execute(input: Input): Promise<Video> {
+  async execute(input: Input): Promise<Output> {
     const video = await this.videoRepository.findById(input.videoId);
     if (!video) {
       throw new NotFoundError('Video not found');
     }
-    const job = video.processingJob;
+    let job = video.processingJob;
+    let statusUpdated = false;
     if (!job) {
-      video.addProcessingJob(ProcessingJob.create(input.videoId));
+      job = ProcessingJob.create(input.videoId);
+      video.addProcessingJob(job);
+      statusUpdated = true;
     } else {
+      const previousStatus = job.currentStatus;
       job.updateStatus(input.jobStatus);
+      statusUpdated = previousStatus !== job.currentStatus;
     }
     await this.videoRepository.save(video);
     if (input.jobStatus === JobStatus.COMPLETED) {
@@ -37,6 +48,10 @@ export class TrackProcessingJob {
         job?.errorMessage ?? 'Internal Server Error',
       );
     }
-    return video;
+    return {
+      video,
+      statusUpdated,
+      currentStatus: job.currentStatus,
+    };
   }
 }
