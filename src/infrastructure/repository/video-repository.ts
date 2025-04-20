@@ -54,35 +54,84 @@ export class VideoRepository implements IVideoRepository {
     });
     return videos.map((video) => this.mapToDomain(video));
   }
-  async save(video: Video): Promise<void> {
-    await prisma.video.create({
-      data: {
-        id: video.id,
-        userId: video.userId,
-        originalKey: video.originalKey,
-        name: video.name,
-        description: video.description,
-      },
-    });
-  }
 
-  async saveProcessingJob(processingJob: ProcessingJob): Promise<void> {
-    await prisma.processingJob.create({
-      data: {
-        id: processingJob.id,
-        videoId: processingJob.videoId,
-        requestedAt: processingJob.requestedAt,
-        errorMessage: processingJob.errorMessage,
-        startedAt: processingJob.startedAt,
-        finishedAt: processingJob.finishedAt,
-        statusHistory: {
-          create: processingJob.statusHistory.map((statusHistory) => ({
-            id: statusHistory.id,
-            status: statusHistory.status as JobStatus,
-            changedAt: statusHistory.changedAt,
-          })),
+  async save(video: Video): Promise<void> {
+    await prisma.$transaction(async (tx) => {
+      await tx.video.upsert({
+        where: { id: video.id },
+        create: {
+          id: video.id,
+          userId: video.userId,
+          name: video.name,
+          originalKey: video.originalKey,
+          description: video.description,
+          createdAt: video.createdAt,
+          resultKey: video.resultKey,
         },
-      },
+        update: {
+          name: video.name,
+          originalKey: video.originalKey,
+          description: video.description,
+          resultKey: video.resultKey,
+        },
+      });
+
+      const job = video.processingJob;
+      if (!job) {
+        return;
+      }
+
+      await tx.processingJob.upsert({
+        where: { id: job.id },
+        create: {
+          id: job.id,
+          videoId: job.videoId,
+          requestedAt: job.requestedAt,
+          startedAt: job.startedAt,
+          finishedAt: job.finishedAt,
+          errorMessage: job.errorMessage,
+        },
+        update: {
+          requestedAt: job.requestedAt,
+          startedAt: job.startedAt,
+          finishedAt: job.finishedAt,
+          errorMessage: job.errorMessage,
+        },
+      });
+
+      await tx.jobStatusHistory.deleteMany({
+        where: { jobId: job.id },
+      });
+      if (job.statusHistory.length) {
+        await tx.jobStatusHistory.createMany({
+          data: job.statusHistory.map((h) => ({
+            jobId: h.jobId,
+            status: h.status,
+            changedAt: h.changedAt,
+          })),
+        });
+      }
+
+      for (const n of job.notifications) {
+        await tx.notification.upsert({
+          where: { id: n.id },
+          create: {
+            id: n.id,
+            userId: n.userId,
+            channel: n.channel,
+            payload: n.payload,
+            sentAt: n.sentAt,
+            jobId: n.jobId,
+          },
+          update: {
+            userId: n.userId,
+            channel: n.channel,
+            payload: n.payload,
+            sentAt: n.sentAt,
+            jobId: n.jobId,
+          },
+        });
+      }
     });
   }
 
@@ -96,31 +145,32 @@ export class VideoRepository implements IVideoRepository {
       originalKey: video.originalKey,
       description: video.description ?? undefined,
       createdAt: video.createdAt,
-      processingJobs: video.processingJobs.map((job) =>
-        ProcessingJob.restore({
-          id: job.id,
-          videoId: job.videoId,
-          requestedAt: job.requestedAt,
-          statusHistory: job.statusHistory.map((statusHistory) =>
-            JobStatusHistory.restore({
-              id: statusHistory.id,
-              jobId: statusHistory.jobId,
-              status: statusHistory.status as JobStatus,
-              changedAt: statusHistory.changedAt,
-            }),
-          ),
-          notifications: job.Notification.map((notification) =>
-            Notification.restore({
-              id: notification.id,
-              userId: notification.userId,
-              channel: notification.channel as Channel,
-              payload: notification.payload,
-              sentAt: notification.sentAt,
-              jobId: notification.jobId ?? undefined,
-            }),
-          ),
-        }),
-      ),
+      processingJob: video.processingJobs
+        .map((job) =>
+          ProcessingJob.restore({
+            id: job.id,
+            videoId: job.videoId,
+            requestedAt: job.requestedAt,
+            statusHistory: job.statusHistory.map((statusHistory) =>
+              JobStatusHistory.restore({
+                jobId: statusHistory.jobId,
+                status: statusHistory.status as JobStatus,
+                changedAt: statusHistory.changedAt,
+              }),
+            ),
+            notifications: job.Notification.map((notification) =>
+              Notification.restore({
+                id: notification.id,
+                userId: notification.userId,
+                channel: notification.channel as Channel,
+                payload: notification.payload,
+                sentAt: notification.sentAt,
+                jobId: notification.jobId ?? undefined,
+              }),
+            ),
+          }),
+        )
+        .shift(),
     });
   }
 }
