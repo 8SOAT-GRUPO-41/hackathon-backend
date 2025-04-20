@@ -1,10 +1,10 @@
 import {
   makeCreateUserController,
   makeDeleteUserController,
-} from '@/infrastructure/factories/user-controller-factory'
-import { errorResponseSchema } from '@/infrastructure/swagger/error-response-schema'
-import { ErrorCodes } from '@/domain/enums/error-codes'
-import type { HttpRoute } from '@/infrastructure/http/interfaces'
+} from '@/infrastructure/factories/user-controller-factory';
+import { errorResponseSchema } from '@/infrastructure/swagger/error-response-schema';
+import { ErrorCodes } from '@/domain/enums/error-codes';
+import type { HttpRoute } from '@/infrastructure/http/interfaces';
 
 export const userRoutes = [
   {
@@ -37,23 +37,24 @@ export const userRoutes = [
     method: 'delete',
     url: '/users/:id',
     handler: makeDeleteUserController,
+    protected: true,
     schema: {
       tags: ['Users'],
-      summary: 'Delete a user',
+      summary: 'Delete a user by id',
       params: {
         type: 'object',
         properties: {
-          id: { type: 'string', format: 'uuid' },
+          id: { type: 'string' },
         },
         required: ['id'],
       },
       response: {
-        204: {},
-        400: errorResponseSchema(400, ErrorCodes.BAD_REQUEST),
+        200: {
+          type: 'string',
+        },
         404: errorResponseSchema(404, ErrorCodes.NOT_FOUND),
-        422: errorResponseSchema(422, ErrorCodes.UNPROCESSABLE_ENTITY),
         500: errorResponseSchema(500, ErrorCodes.INTERNAL_SERVER_ERROR),
       },
     },
   },
-] as HttpRoute[]
+] as HttpRoute[];

@@ -1,11 +1,11 @@
 export abstract class Entity<T> {
-  protected readonly _id: T
+  protected readonly _id: T;
 
   constructor(id: T) {
-    this._id = id
+    this._id = id;
   }
 
   get id(): T {
-    return this._id
+    return this._id;
   }
 }

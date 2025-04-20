@@ -26,6 +26,8 @@ model User {
 
 model Video {
   id             String          @id @default(uuid())
+  name           String          @map("name")
+  description    String?         @map("description")
   user           User            @relation(fields: [userId], references: [id])
   userId         String          @map("user_id")
   originalKey    String          @map("original_key")

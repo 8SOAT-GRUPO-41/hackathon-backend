@@ -1,9 +1,6 @@
-import type { ErrorCodes } from '@/domain/enums/error-codes'
+import type { ErrorCodes } from '@/domain/enums/error-codes';
 
-export const errorResponseSchema = (
-  statusCode: number,
-  errorCode?: ErrorCodes
-) => ({
+export const errorResponseSchema = (statusCode: number, errorCode?: ErrorCodes) => ({
   type: 'object',
   properties: {
     status: {
@@ -22,4 +19,4 @@ export const errorResponseSchema = (
       type: 'string',
     },
   },
-})
+});
