@@ -28,7 +28,7 @@ LOG_LEVEL=info
 
 ## Database Schema
 
-The application uses PostgreSQL with Prisma ORM. Below is a diagram of the database schema:
+Abaixo está o diagrama do banco de dados:
 
 ```mermaid
 erDiagram
