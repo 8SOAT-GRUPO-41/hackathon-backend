@@ -1,12 +1,13 @@
-import fastify, { RouteOptions, type FastifyInstance } from 'fastify';
+import { makeAuthMiddleware } from '@/infrastructure/factories/auth-factories';
+import type { HttpServer } from '@/infrastructure/http/interfaces';
+import { authRoutes, userRoutes, videoRoutes } from '@/infrastructure/http/routes';
+import swaggerConfig from '@/infrastructure/swagger/swagger-config';
+import fastifyCors from '@fastify/cors';
 import fastifySwagger from '@fastify/swagger';
 import fastifySwaggerUI from '@fastify/swagger-ui';
-import swaggerConfig from '@/infrastructure/swagger/swagger-config';
-import { authRoutes, userRoutes, videoRoutes } from '@/infrastructure/http/routes';
-import type { HttpServer } from '@/infrastructure/http/interfaces';
+import fastify, { RouteOptions, type FastifyInstance } from 'fastify';
 import { adaptFastifyRoute } from './adapter';
 import { adaptFastifyMiddleware } from './middleware-adapter';
-import { makeAuthMiddleware } from '@/infrastructure/factories/auth-factories';
 
 export class FastifyHttpServer implements HttpServer {
   private server: FastifyInstance;
@@ -60,7 +61,18 @@ export class FastifyHttpServer implements HttpServer {
       });
   }
 
+  private async registerPlugins(): Promise<void> {
+    await this.server.register(fastifyCors, {
+      origin: '*',
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['*'],
+      exposedHeaders: ['*'],
+      credentials: true,
+    });
+  }
+
   async listen(port: number): Promise<void> {
+    await this.registerPlugins();
     await this.buildDocs();
     await this.buildRoutes();
     await this.server.ready();
