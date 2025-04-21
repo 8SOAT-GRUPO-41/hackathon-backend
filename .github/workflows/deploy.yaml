@@ -20,8 +20,8 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      # - name: Test and Coverage
-      #   run: yarn test:cov
+      - name: Test and Coverage
+        run: yarn test:cov
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v4
