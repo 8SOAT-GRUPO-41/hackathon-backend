@@ -26,6 +26,57 @@ PORT=3000
 LOG_LEVEL=info
 ```
 
+## Database Schema
+
+The application uses PostgreSQL with Prisma ORM. Below is a diagram of the database schema:
+
+```mermaid
+erDiagram
+    USERS {
+        String id PK
+        String email "unique"
+        String password "passwordHash"
+        DateTime created_at
+    }
+    VIDEOS {
+        String id PK
+        String name
+        String description "nullable"
+        String user_id FK
+        String original_key
+        String result_key "nullable"
+        DateTime created_at
+    }
+    PROCESSING_JOBS {
+        String id PK
+        String video_id FK
+        DateTime requested_at
+        DateTime started_at "nullable"
+        DateTime finished_at "nullable"
+        String error_message "nullable"
+    }
+    JOB_STATUS_HISTORY {
+        Int id PK
+        String job_id FK
+        JobStatus status
+        DateTime changed_at
+    }
+    NOTIFICATIONS {
+        String id PK
+        String user_id FK
+        String job_id FK "nullable"
+        Channel channel
+        DateTime sent_at
+        Json payload
+    }
+
+    USERS ||--o{ VIDEOS          : "owns"
+    USERS ||--o{ NOTIFICATIONS   : "receives"
+    VIDEOS ||--o{ PROCESSING_JOBS : "has"
+    PROCESSING_JOBS ||--o{ JOB_STATUS_HISTORY : "tracks"
+    PROCESSING_JOBS ||--o{ NOTIFICATIONS      : "triggers"
+```
+
 ## SQS Consumer
 
 A aplicação inclui um consumidor SQS que inicia automaticamente quando a aplicação é executada. Ele faz polling contínuo em uma fila SQS para receber mensagens, processá-las e registrar o conteúdo.
