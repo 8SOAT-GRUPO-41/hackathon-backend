@@ -19,14 +19,7 @@ export class CreateUser {
       throw new ConflictError('User already exists');
     }
     const hashedPassword = await UserPassword.create(password);
-    const user = new User(
-      crypto.randomUUID(),
-      new UserEmail(email),
-      hashedPassword,
-      new Date(),
-      [],
-      [],
-    );
+    const user = User.create(new UserEmail(email), hashedPassword);
     await this.userRepository.save(user);
   }
 }
