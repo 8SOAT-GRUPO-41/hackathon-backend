@@ -77,6 +77,9 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           SQS_QUEUE_URL: ${{ secrets.SQS_QUEUE_URL }}
           NOTIFICATION_QUEUE_URL: ${{ secrets.NOTIFICATION_QUEUE_URL }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
         run: |
           helm upgrade --install hackathon-backend ./k8s/hackathon-backend \
             --set api.env.DATABASE_URL=$DATABASE_URL \
@@ -84,5 +87,8 @@ jobs:
             --set api.env.AWS_S3_BUCKET=$AWS_S3_BUCKET \
             --set api.env.SQS_QUEUE_URL=$SQS_QUEUE_URL \
             --set api.env.NOTIFICATION_QUEUE_URL=$NOTIFICATION_QUEUE_URL \
+            --set api.env.AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+            --set api.env.AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+            --set api.env.AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN \
             --set api.image.repository=${{ env.DOCKER_IMAGE }} \
             --set api.image.tag=${{ env.image_tag }}
