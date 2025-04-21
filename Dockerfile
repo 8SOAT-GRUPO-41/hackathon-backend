@@ -1,23 +1,31 @@
-FROM node:22-alpine
+FROM node:20-alpine as builder
 
-WORKDIR /app
+ENV NODE_ENV build
 
-COPY package.json pnpm-lock.yaml ./
+WORKDIR /home/node
 
-# Install pnpm
-RUN npm install -g pnpm
+COPY package.json package-lock.json ./
+RUN npm ci
 
-# Install dependencies
-RUN pnpm install
 
-# Copy application code
-COPY . .
+COPY --chown=node:node . .
+RUN npx prisma generate
+RUN npm run build \
+    && npm prune --production
 
-# Build the application
-RUN pnpm build
+FROM node:20-alpine
 
-# Expose the API port
+ENV NODE_ENV production
+
+USER node
+WORKDIR /home/node
+
+COPY --from=builder --chown=node:node /home/node/package.json ./
+COPY --from=builder --chown=node:node /home/node/package-lock.json ./
+COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
+COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+COPY --from=builder --chown=node:node /home/node/entrypoint.sh ./
+
 EXPOSE 3000
 
-# Start the application
-CMD ["pnpm", "start"]
+CMD ["./entrypoint.sh"]

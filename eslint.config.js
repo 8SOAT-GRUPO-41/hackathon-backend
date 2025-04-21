@@ -14,6 +14,7 @@ module.exports = [
       'tests/**',
       'scripts/**',
       'app.d.ts',
+      'jest.config.ts',
     ],
     files: ['**/*.js', '**/*.ts'],
     languageOptions: {
