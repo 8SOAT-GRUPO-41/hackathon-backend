@@ -32,3 +32,9 @@ spec:
               value: {{ .Values.api.env.SQS_QUEUE_URL }}
             - name: NOTIFICATION_QUEUE_URL
               value: {{ .Values.api.env.NOTIFICATION_QUEUE_URL }}
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.api.env.AWS_ACCESS_KEY_ID }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.api.env.AWS_SECRET_ACCESS_KEY }}
+            - name: AWS_SESSION_TOKEN
+              value: {{ .Values.api.env.AWS_SESSION_TOKEN }}
